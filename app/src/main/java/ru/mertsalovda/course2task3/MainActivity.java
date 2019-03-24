@@ -21,6 +21,9 @@ public class MainActivity extends AppCompatActivity
     private Loader<Boolean> mLoader;
     public static final int LOADER_ID = 1;
     public static final String TAG = "MyTag";
+    private static final String KEY_BTNSTART = "BTNSTART";
+    private static final String KEY_PROGRESSBAR = "PROGRESSBAR";
+    private static final String KEY_TVSTATUS = "TVSTATUS";
 
 
     @Override
@@ -35,18 +38,34 @@ public class MainActivity extends AppCompatActivity
         // Если загрузчик не существует, то он будет создан,
         // иначе он будет перезапущен.
         mLoader = getSupportLoaderManager().initLoader(LOADER_ID,
-                savedInstanceState,
+                null,
                 this);
+
+        if (savedInstanceState != null){
+            btnStart.setEnabled(savedInstanceState.getBoolean(KEY_BTNSTART));
+            tvStatus.setText(savedInstanceState.getString(KEY_TVSTATUS));
+            progressBar.setVisibility(savedInstanceState.getInt(KEY_PROGRESSBAR));
+        }
 
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mLoader.onContentChanged();
                 progressBar.setVisibility(View.VISIBLE);
+                btnStart.setEnabled(false);
                 tvStatus.setText(R.string.loading);
             }
         });
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putBoolean(KEY_BTNSTART, btnStart.isEnabled());
+        savedInstanceState.putInt(KEY_PROGRESSBAR, progressBar.getVisibility());
+        savedInstanceState.putString(KEY_TVSTATUS, tvStatus.getText().toString());
+    }
+
     // Будет вызван, если до этого не существовал
     // Это значит, что при повороте не будет вызываться
     // так как предыдущий загрузчик с данным ID уже был создан ранее
@@ -57,7 +76,7 @@ public class MainActivity extends AppCompatActivity
         Loader<Boolean> mLoader = null;
 
         if (id == LOADER_ID) {
-            Log.d(TAG, "onCreateLoader");
+            Log.d(TAG, "MainActivity onCreateLoader");
             mLoader = new MyAsyncTaskLoader(this, bundle);
         }
         return mLoader;
@@ -67,8 +86,9 @@ public class MainActivity extends AppCompatActivity
     // Также вызывается при поворотах
     @Override
     public void onLoadFinished(@NonNull Loader<Boolean> loader, Boolean result) {
-        Log.d(TAG, "onLoadFinished");
+        Log.d(TAG, "MainActivity onLoadFinished");
         if (result){
+            btnStart.setEnabled(true);
             progressBar.setVisibility(View.GONE);
             tvStatus.setText(R.string.ready);
         }
@@ -76,6 +96,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onLoaderReset(@NonNull Loader<Boolean> loader) {
-        Log.d(TAG, "onLoaderReset");
+        Log.d(TAG, "MainActivity onLoaderReset");
     }
 }
