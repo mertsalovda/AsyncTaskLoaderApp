@@ -12,51 +12,26 @@ import java.util.concurrent.TimeUnit;
 public class MyAsyncTaskLoader extends AsyncTaskLoader<Boolean> {
 
     public static final String TAG = "LogTAG";
-    private static final String STATUS_KEY = "STATUS_KEY";
-    private Boolean bool;
+    private Boolean isStart = false;
     public static final int TIME = 5;
 
-    public MyAsyncTaskLoader(@NonNull Context context, Bundle bundle) {
+    public MyAsyncTaskLoader(@NonNull Context context) {
         super(context);
-        if (bundle != null){
-            bool = bundle.getBoolean(STATUS_KEY);
-        }
     }
 
     @Override
     protected void onStartLoading() {
         Log.d(TAG, "MyAsyncTaskLoader onStartLoading");
         super.onStartLoading();
-
-    }
-
-    @Override
-    protected void onStopLoading() {
-        Log.d(TAG, "MyAsyncTaskLoader onStopLoading");
-        super.onStopLoading();
-    }
-
-    @Override
-    protected void onReset() {
-        Log.d(TAG, "MyAsyncTaskLoader onReset");
-        super.onReset();
-    }
-
-    @Override
-    public void onCanceled(@Nullable Boolean data) {
-        Log.d(TAG, "MyAsyncTaskLoader onCanceled");
-        super.onCanceled(data);
-    }
-
-    @Override
-    public void deliverResult(@Nullable Boolean data) {
-        Log.d(TAG, "MyAsyncTaskLoader deliverResult");
-        super.deliverResult(data);
+        if(isStart){
+            deliverResult(false);
+        }
     }
 
     @Nullable
     @Override
     public Boolean loadInBackground() {
+        isStart = true;
         Log.d(TAG, "MyAsyncTaskLoader loadInBackground start");
         int tempTime = TIME;
         while (tempTime != 0) {
@@ -68,14 +43,8 @@ public class MyAsyncTaskLoader extends AsyncTaskLoader<Boolean> {
             }
             tempTime--;
         }
-
         Log.d(TAG, "MyAsyncTaskLoader loadInBackground done");
+        isStart = false;
         return true;
-    }
-
-    @Override
-    public void forceLoad() {
-        Log.d(TAG, "MyAsyncTaskLoader forceLoad");
-        super.forceLoad();
     }
 }
